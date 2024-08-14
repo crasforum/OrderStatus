@@ -1,0 +1,15 @@
+# Compiled
+__pycache__/
+
+# Files
+iop/
+get_tracking.py
+order_status_carrefour.py
+order_status_cosmo.py
+order_status_miravia.py
+order_status_sprinter.py
+order_status_tradeinn.py
+order_status_worten.py
+
+# Environment
+env/
