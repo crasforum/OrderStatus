@@ -140,7 +140,7 @@ def get_tracking():
             for order in result:
                 marketplace_order, payment, current_state, shipping_number = order
                 flag = False
-                if current_state not in [98, 99, 103, 104, 105, 106, 107, 108]:
+                if current_state not in [18, 19, 20, 21, 22, 23, 72, 74, 77, 87, 98, 99, 103, 104, 105, 106, 107, 108]:
                     match payment:
                         case 'Miravia':
                             flag = order_status_miravia(marketplace_order, shipping_number, miravia_credentials['api_key'], miravia_credentials['api_url'], miravia_credentials['api_secret'], miravia_credentials['access_token'], payment)
@@ -161,7 +161,7 @@ def get_tracking():
                             flag = order_status_mirakl(marketplace_order, shipping_number, worten_credentials['api_key'], worten_credentials['api_url'], payment)
                             pass
                         case 'Hipercalzado':
-                            #flag = order_status_hipercalzado(marketplace_order, shipping_number, hipercalzado_credentials['api_key'], hipercalzado_credentials['api_url'], payment)
+                            flag = order_status_hipercalzado(marketplace_order, shipping_number, hipercalzado_credentials['api_key'], hipercalzado_credentials['api_url'], payment)
                             pass
                         case 'Spartoo':
                             flag = order_status_spartoo(marketplace_order, shipping_number, spartoo_credentials['api_key'])
@@ -555,7 +555,7 @@ def order_status_hipercalzado(order_id, shipping_id, api_key, api_url, payment):
                     # La solicitud fue un fracaso
                     print(f"Pedido de {payment} marcado como enviado: {order_id}")
                     return True
-        if orders[0]['order_state'] == 'ORDER_SHIPPED':
+        if orders[0]['order_state'] == 'ORDER_SHIPPED' or orders[0]['order_state'] == 'ORDER_DELIVERED':
             return True
     else:
         print(f"No se ha encontrado el pedido con order_id: {order_id}")
