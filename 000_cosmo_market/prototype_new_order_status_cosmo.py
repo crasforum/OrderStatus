@@ -160,6 +160,9 @@ def get_tracking():
                         case 'Worten':
                             flag = order_status_mirakl(marketplace_order, shipping_number, worten_credentials['api_key'], worten_credentials['api_url'], payment)
                             pass
+                        case 'Colizey':
+                            flag = order_status_colizey(marketplace_order, shipping_number, colizey_credentials['api_key'], colizey_credentials['api_url'], payment)
+                            pass
                         case 'Hipercalzado':
                             flag = order_status_hipercalzado(marketplace_order, shipping_number, hipercalzado_credentials['api_key'], hipercalzado_credentials['api_url'], payment)
                             pass
@@ -169,9 +172,7 @@ def get_tracking():
                         case 'Miinto':
                             #flag = order_status_miinto(marketplace_order, shipping_number, miinto_credentials['api_key'], miinto_credentials['api_url'])
                             pass
-                        case 'Colizey':
-                            #flag = order_status_colizey(marketplace_order, shipping_number, spartoo_credentials['api_key'], spartoo_credentials['api_url'])
-                            pass
+                        
                 else:
                     flag = True
                 if flag:
@@ -199,8 +200,9 @@ def order_status_miravia(order_id, shipping_id, api_key, api_url, api_secret, ac
 
     if len(response.body['data']) > 1:
         all_products = []
-        for order_line in response.body['data']:
-            if order_line['status'] == 'shipped' or order_line['status'] == 'delivered':
+        orders = response.body['data']
+        for order_line in orders:
+            if order_line['status'] == 'shipped' or order_line['status'] == 'delivered' or order_line['status'] == 'canceled':
                 all_products.append(order_line)
         if len(all_products) == len(response.body['data']):
             return True
@@ -299,7 +301,7 @@ def order_status_mirakl(order_id, shipping_id, api_key, api_url, payment):
         if len(orders[0]['order_lines']) > 1:
             all_products = []
             for order_line in orders[0]['order_lines']:
-                if order_line['order_line_state'] == 'SHIPPED' or order_line['order_line_state'] == 'DELIVERED':
+                if order_line['order_line_state'] == 'SHIPPED' or order_line['order_line_state'] == 'DELIVERED' or order_line['order_line_state'] == 'REFUNDED':
                     all_products.append(order_line)
             if len(all_products) == len(orders[0]['order_lines']):
                 return True
@@ -467,19 +469,64 @@ def order_status_spartoo(order_id, shipping_id, access_token):
 def order_status_miinto(order_id, shipping_id, api_key, api_url):
     pass
 
-def order_status_colizey(order_id, shipping_id, api_key, api_url):
-    headers = {"Authorization": api_key, "Content-Type" : "application/json"}
+def order_status_colizey(order_id, shipping_id, api_key, api_url, payment):
+    headers = {"x-apikey": api_key}
 
-    api_request = f"orders"
+    api_request = f"orders/{order_id}"
 
-    params = {
-        'order_ids': order_id,
-    }
-
-    response = requests.get(api_url + api_request, headers=headers, params=params)
+    response = requests.get(api_url + api_request, headers=headers)
 
     if response.status_code in [200, 204]:
-        pass
+        order = json.loads(response.text)
+
+        if len(order['orderLines']) > 1:
+            all_products = []
+            for order_line in order['orderLines']:
+                if order_line['status'] == 5:
+                    all_products.append(order_line)
+            if len(all_products) == len(order['orderLines']):
+                return True
+            print('PEDIDO MULTIPLE: ', order_id)
+            return False
+        
+        # Si el pedido está pagado
+        if order['status'] == 1:
+            # Aceptar un pedido
+            api_request = f"orders/{order_id}/accept"
+            response = requests.put(api_url + api_request, headers=headers, data=json_data)
+
+            if response.status_code in [200, 204]:
+                print("PEDIDO ACEPTADO: ", order['order_id'])
+            else:
+                print(f"ERROR AL ACEPTAR EL PEDIDO {order['order_id']} {response.text}")
+
+        # Si el pedido está aceptado
+        if order['status'] == 2:
+            # Añadir Tracking
+            api_request = f"orders/{order_id}/ship"
+
+            data = {
+                "trackingUrl": "https://correos.es",
+                "trackingNumber": shipping_id,
+                "shipperId": 17,
+            }
+
+            request_body = json_data = json.dumps(data)
+            response = requests.put(api_url + api_request, headers=headers, data=request_body)
+
+            # Verifica la respuesta del servidor
+            if response.status_code not in [200, 204]:
+                # La solicitud fue un fracaso
+                print("ADVERTENCIA_TRACKER: " + response.text)
+            else:
+                # La solicitud fue un exito
+                print(f"Pedido de {payment} marcado como enviado: {order_id}")
+                return True
+
+        if order['status'] == 3:
+            return True
+    else:
+        print(f"No se ha encontrado el pedido con order_id: {order_id}")
 
 def order_status_hipercalzado(order_id, shipping_id, api_key, api_url, payment):
     headers = {"Authorization": api_key, "Content-Type" : "application/json"}
