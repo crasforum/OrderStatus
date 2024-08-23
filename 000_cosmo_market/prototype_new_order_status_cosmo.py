@@ -508,7 +508,7 @@ def order_status_colizey(order_id, shipping_id, api_key, api_url, payment):
             data = {
                 "trackingUrl": "https://correos.es",
                 "trackingNumber": shipping_id,
-                "shipperId": 17,
+                "shipperId": 'fad84407-3d4c-4fc3-ab43-71dec6bcc1d6',
             }
 
             request_body = json_data = json.dumps(data)
