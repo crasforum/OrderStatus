@@ -9,11 +9,6 @@ spartoo_credentials = {
     'api_key': 'bc6cc6dab82a565fafe5b84d17801555440276c8168452dbf17102199786',
 }
 
-miinto_credentials = {
-    'api_url': '',
-    'api_key': '',
-}
-
 tradeinn_credentials = {
     'api_url': 'https://tradeinnes-prod.mirakl.net/api/',
     'api_key': '1b4d87aa-8da9-460d-9407-9c31c04552cf',

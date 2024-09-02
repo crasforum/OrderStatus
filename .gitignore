@@ -4,11 +4,11 @@ __pycache__/
 # Files
 get_tracking.py
 order_status_carrefour.py
-order_status_cosmo.py
 order_status_miravia.py
 order_status_sprinter.py
 order_status_tradeinn.py
 order_status_worten.py
+prototype_new_order_status_cosmo.py
 
 # Environment
 env/
