@@ -188,7 +188,6 @@ def get_tracking():
         orders_connection.disconnect()
 
 def order_status_miravia(order_id, shipping_id, api_key, api_url, api_secret, access_token, payment):
-    hora_actual = datetime.now().time()
     client = iop.IopClient(api_url, api_key, api_secret)
 
     request = iop.IopRequest('/order/items/get', 'GET')
@@ -230,7 +229,7 @@ def order_status_miravia(order_id, shipping_id, api_key, api_url, api_secret, ac
             else:
                 print(f"Tracking añadido: {package_id}")
 
-        if item['status'] == 'packed' and hora_actual.hour <= 17:
+        if item['status'] == 'packed':
             # Marcar ready_to_ship
             params = {
                 "packages":[
@@ -253,7 +252,7 @@ def order_status_miravia(order_id, shipping_id, api_key, api_url, api_secret, ac
 
             return False
 
-        if item['status'] == 'ready_to_ship' and hora_actual.hour >= 20:
+        if item['status'] == 'ready_to_ship':
             # Marcar como enviado
             params = {
                 "packages":[
@@ -264,7 +263,7 @@ def order_status_miravia(order_id, shipping_id, api_key, api_url, api_secret, ac
             }
             
             params = json.dumps(params)
-            request = iop.IopRequest('/order/package/sof/delivered', 'POST')
+            request = iop.IopRequest('/order/package/sof/confirm/collected', 'POST')
             request.add_api_param('dbsCollectedReq', params)
             response = client.execute(request, access_token)
 
@@ -298,7 +297,7 @@ def order_status_mirakl(order_id, shipping_id, api_key, api_url, payment):
         if len(orders[0]['order_lines']) > 1:
             all_products = []
             for order_line in orders[0]['order_lines']:
-                if order_line['order_line_state'] == 'SHIPPED' or order_line['order_line_state'] == 'SHIPPING' or order_line['order_line_state'] == 'DELIVERED' or order_line['order_line_state'] == 'REFUNDED' or order_line['order_line_state'] == 'RECEIVED':
+                if order_line['order_line_state'] == 'SHIPPED' or order_line['order_line_state'] == 'SHIPPING' or order_line['order_line_state'] == 'DELIVERED' or order_line['order_line_state'] == 'REFUNDED' or order_line['order_line_state'] == 'RECEIVED' or order_line['refunds'] != []:
                     all_products.append(order_line)
             if len(all_products) == len(orders[0]['order_lines']):
                 return True
@@ -502,7 +501,6 @@ def order_status_colizey(order_id, shipping_id, api_key, api_url, payment):
             data = {
                 "trackingUrl": "https://correos.es",
                 "trackingNumber": shipping_id,
-                "shipperId": 'fad84407-3d4c-4fc3-ab43-71dec6bcc1d6',
             }
 
             request_body = json_data = json.dumps(data)
@@ -517,7 +515,7 @@ def order_status_colizey(order_id, shipping_id, api_key, api_url, payment):
                 print(f"Pedido de {payment} marcado como enviado: {order_id}")
                 return True
 
-        if order['status'] == 3:
+        if order['status'] == 3 or order['status'] == 4 or order['status'] == 6:
             return True
     else:
         print(f"No se ha encontrado el pedido con order_id: {order_id}")
