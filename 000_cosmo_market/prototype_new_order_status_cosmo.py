@@ -168,7 +168,9 @@ def get_tracking():
                             pass
                         case 'Spartoo':
                             flag = order_status_spartoo(marketplace_order, shipping_number, spartoo_credentials['api_key'])
-                            pass                        
+                            pass
+                        case 'Miinto':
+                            flag = True            
                 else:
                     flag = True
                 if flag:
