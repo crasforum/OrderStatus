@@ -500,13 +500,24 @@ def order_status_colizey(order_id, shipping_id, api_key, api_url, payment):
             # Añadir Tracking
             api_request = f"orders/{order_id}/ship"
 
+            items = []
+            for item in order['orderLines']:
+                itemDict = {
+                    "sku": item['sku'],
+                    "quantity": item['quantity'],
+                }
+
+                items.append(itemDict)
+
             data = {
                 "trackingUrl": "https://correos.es",
                 "trackingNumber": shipping_id,
+                "shipperId": "fad84407-3d4c-4fc3-ab43-71dec6bcc1d6",
+                "items": items,
             }
 
             request_body = json_data = json.dumps(data)
-            response = requests.put(api_url + api_request, headers=headers, data=request_body)
+            response = requests.post(api_url + api_request, headers=headers, data=request_body)
 
             # Verifica la respuesta del servidor
             if response.status_code not in [200, 204]:
@@ -563,8 +574,8 @@ def order_status_hipercalzado(order_id, shipping_id, api_key, api_url, payment):
             else:
                 print(f"ERROR AL ACEPTAR EL PEDIDO {orders[0]['order_id']} {response.text}")
 
-        # Verifica la respuesta del servidor
-        if orders[0]['order_state'] == 'ORDER_SHIPPING':
+        # Si el pedido está pagado y aceptado se actualiza su seguimiento
+        if orders[0]['order_state'] == 'ORDER_ACCEPTED':
             # Añadir Tracking
             api_request = f"orders/{order_id}/tracking"
 
