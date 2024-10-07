@@ -98,7 +98,7 @@ def order_status_spartoo(cf_id, orders_connection, order_id, shipping_id, access
 
     response = requests.get('https://sws.spartoo.es/mp/xml_export_orders.php', params=params)
 
-    root = ET.fromstring(response)
+    root = ET.fromstring(response.text)
 
     orders = [extract_spartoo_order_info(order) for order in root.findall('.//order')]
 

@@ -82,6 +82,9 @@ def get_tracking():
                     case 'Worten':
                         flag = mirakl.order_status_mirakl(marketplace_order, shipping_number, worten_credentials['api_key'], worten_credentials['api_url'], payment)
                         pass
+                    case 'ClubeFashion':
+                        flag = mirakl.order_status_mirakl(marketplace_order, shipping_number, clubefashion_credentials['api_key'], clubefashion_credentials['api_url'], payment)
+                        pass
                     case 'Colizey':
                         flag = colizey.order_status_colizey(marketplace_order, shipping_number, colizey_credentials['api_key'], colizey_credentials['api_url'], payment)
                         pass

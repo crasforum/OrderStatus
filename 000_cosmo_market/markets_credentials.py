@@ -29,6 +29,11 @@ worten_credentials = {
     'api_key': '4e7e07f9-a7bc-485a-aec6-82755894c8db',
 }
 
+clubefashion_credentials = {
+    'api_url': 'https://clubefashion.mirakl.net/api/',
+    'api_key': '6f1ce059-4d78-43e3-9988-a97282540f2f',
+}
+
 sprinter_credentials = {
     'api_url': 'https://sprinter-prod.mirakl.net/api/',
     'api_key': 'b0ae6d6c-00dc-4740-b3d8-910bcc619ee2',
